@@ -1,0 +1,20 @@
+apiVersion: v2
+name: websocket-go-chart
+description: golang으로 만든 websocket server
+  - Kafka Consumer로 해당 메세지를 소비하여 websocket으로 연결 된 web에 Message를 뿌려줍니다.
+
+type: application
+
+version: 0.1.0
+
+maintainers:
+  - name: leesungwoo
+    email: swlee@in-soft.co.kr
+
+appVersion: "1.16.0"
+
+keywords:
+  - websocket
+  - kafkaConsumer
+  - golang
+  - websocket-go

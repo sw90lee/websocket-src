@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websocket-go
+  labels:
+    app: websocket-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: websocket-go
+  template:
+    metadata:
+      labels:
+        app: websocket-go
+    spec:
+      containers:
+        - name: websocket-go
+          image: sw90lee/websocket-go:0.1
+          ports:
+            - containerPort: 8080
+          env:
+            - name: Topic
+              valueFrom:
+                configMapKeyRef:
+                  key: Topic
+                  name: websocket-go-cm
+            - name: Broker
+              valueFrom:
+                configMapKeyRef:
+                  key: Broker
+                  name: websocket-go-cm
+            - name: Consumergroup
+              valueFrom:
+                configMapKeyRef:
+                  key: Consumergroup
+                  name: websocket-go-cm
+            - name: InitialOffset
+              valueFrom:
+                configMapKeyRef:
+                  key: InitialOffset
+                  name: websocket-go-cm
+            - name: assignor
+              valueFrom:
+                configMapKeyRef:
+                  key: assignor
+                  name: websocket-go-cm
+            - name: Oldest
+              valueFrom:
+                configMapKeyRef:
+                  key: Oldest
+                  name: websocket-go-cm
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-go-service
+spec:
+  selector:
+    app: websocket-go
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: websocket-go
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: websocket.icnp.in-soft.co.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: websocket-go-service
+                port:
+                  number: 8080

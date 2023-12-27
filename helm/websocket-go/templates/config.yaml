@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: websocket-go-cm
+data:
+  Topic: "{{.Values.kafka.Topic}}"
+  Broker: "{{.Values.kafka.Broker}}"
+  Consumergroup: "{{.Values.kafka.Consumergroup}}"
+  InitialOffset: "{{.Values.kafka.InitialOffset}}" # oldest or newest
+  assignor: "{{.Values.kafka.assignor}}" # roundrobin,sticky,range
+  Oldest: "{{.Values.kafka.Oldest}}" # true or false

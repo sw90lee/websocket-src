@@ -1,0 +1,7 @@
+kafka:
+  Topic: test-topic
+  Broker: 172.30.40.20:9092,172.30.40.21:9092,172.30.40.22:9092
+  Consumergroup: test-groups2
+  InitialOffset: newest # oldest or newest
+  assignor: roundrobin # roundrobin,sticky,range
+  Oldest: false # true or false

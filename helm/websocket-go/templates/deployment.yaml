@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "websocket-go.fullname" . }}
+  labels:
+    {{- include "websocket-go.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "websocket-go.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "websocket-go.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "websocket-go.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: Topic
+              valueFrom:
+                configMapKeyRef:
+                  key: Topic
+                  name: websocket-go-cm
+            - name: Broker
+              valueFrom:
+                configMapKeyRef:
+                  key: Broker
+                  name: websocket-go-cm
+            - name: Consumergroup
+              valueFrom:
+                configMapKeyRef:
+                  key: Consumergroup
+                  name: websocket-go-cm
+            - name: InitialOffset
+              valueFrom:
+                configMapKeyRef:
+                  key: InitialOffset
+                  name: websocket-go-cm
+            - name: assignor
+              valueFrom:
+                configMapKeyRef:
+                  key: assignor
+                  name: websocket-go-cm
+            - name: Oldest
+              valueFrom:
+                configMapKeyRef:
+                  key: Oldest
+                  name: websocket-go-cm
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- if eq .Values.probe.enabled true}}
+          livenessProbe:
+            {{- toYaml .Values.probe.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.probe.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.probe.resources | nindent 12 }}
+          {{end}}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
